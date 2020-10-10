@@ -14,5 +14,37 @@ data class FilmResponse(
     val starships: List<String>,
     val title: String,
     val url: String,
-    val vehicles: List<String>
-)
+    val vehicles: List<String>,
+    var image:String?=null
+){
+    constructor(characters: List<String>,
+                    created: String,
+                    director: String,
+                    edited: String,
+                    episode_id: Int,
+                    opening_crawl: String,
+                    planets: List<String>,
+                    producer: String,
+                    release_date: String,
+                    species: List<String>,
+                    starships: List<String>,
+                    title: String,
+                    url: String,
+                    vehicles: List<String>):this(
+
+                            characters, created,
+                            director,
+                            edited,
+                            episode_id,
+                            opening_crawl,
+                            planets,
+                            producer,
+                            release_date,
+                            species ,
+                            starships ,
+                            title,
+                            url,
+                            vehicles ,
+                            null
+                    )
+}

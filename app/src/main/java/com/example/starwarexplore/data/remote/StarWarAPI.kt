@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Url
 
 interface StarWarAPI {
-    @GET("/")
+    @GET("/api")
     suspend fun getEndPoints(): Response<EndpointResponse>
 
     @GET
@@ -20,4 +20,8 @@ interface StarWarAPI {
 
     @GET
     suspend fun getCharacter(@Url url: String): Response<PeopleResponse>
+
+    @GET
+    suspend fun getCharactersWithImageLink(@Url url: String): Response<CharactersWithImageLinkResponse>
+
 }

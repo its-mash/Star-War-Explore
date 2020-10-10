@@ -4,5 +4,5 @@ data class PeoplesResponse(
     val count: Int,
     val next: String,
     val previous: Any,
-    val results: List<ResultX>
+    val results: List<PeopleResponse>
 )

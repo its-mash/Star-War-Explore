@@ -16,5 +16,40 @@ data class PeopleResponse(
     val species: List<Any>,
     val starships: List<String>,
     val url: String,
-    val vehicles: List<String>
-)
+    val vehicles: List<String>,
+    var image:String?=null
+){
+    constructor(    birth_year: String,
+                    created: String,
+                    edited: String,
+                    eye_color: String,
+                    films: List<String>,
+                    gender: String,
+                    hair_color: String,
+                    height: String,
+                    homeworld: String,
+                    mass: String,
+                    name: String,
+                    skin_color: String,
+                    species: List<Any>,
+                    starships: List<String>,
+                    url: String,
+                    vehicles: List<String>):this(birth_year,
+                            created,
+                            edited,
+                            eye_color,
+                            films,
+                            gender,
+                            hair_color,
+                            height,
+                            homeworld,
+                            mass,
+                            name,
+                            skin_color,
+                            species,
+                            starships,
+                            url,
+                            vehicles,
+                            null
+    )
+}

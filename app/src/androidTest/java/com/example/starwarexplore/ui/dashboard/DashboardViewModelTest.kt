@@ -1,32 +1,50 @@
-package com.example.starwarexplore.di
+package com.example.starwarexplore.ui.dashboard
 
-import android.content.Context
+import android.Manifest
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.test.rule.GrantPermissionRule
+import com.example.starwarexplore.StarWarExploreApplication
 import com.example.starwarexplore.data.remote.StarWarAPI
-import com.example.starwarexplore.repositories.IStarWarRepository
 import com.example.starwarexplore.repositories.StarWarRepository
-import com.example.starwarexplore.util.Constants.STAR_WAR_API_URL
+import com.example.starwarexplore.util.Constants
 import com.example.starwarexplore.util.hasNetwork
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.google.common.truth.Truth
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Singleton
 
+@ExperimentalCoroutinesApi
+@RunWith(AndroidJUnit4::class)
+@SmallTest
+class DashboardViewModelTest {
+    @get:Rule
+    var instTaskExecutorRule= InstantTaskExecutorRule()
 
-@Module
-@InstallIn(ApplicationComponent::class)
-object AppModule {
+    @get:Rule
+    var mRuntimePermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.INTERNET)
 
-    @Singleton
-    @Provides
-    fun provideStarWarAPI(@ApplicationContext context:Context): StarWarAPI{
+    private lateinit var api: StarWarAPI
+    private lateinit var repository:StarWarRepository
+    private lateinit var viewModel:DashboardViewModel
+
+    @Before
+    fun setup() {
         val cacheSize = (5 * 1024 * 1024).toLong()
-        val myCache = Cache(context.cacheDir, cacheSize)
+        val myCache = Cache(
+            ApplicationProvider.getApplicationContext<StarWarExploreApplication>().cacheDir,
+            cacheSize
+        )
 
 
         val okHttpClient = OkHttpClient.Builder()
@@ -43,7 +61,7 @@ object AppModule {
                 *  we initialize the request and change its header depending on whether
                 *  the device is connected to Internet or not.
                 */
-                request = if (hasNetwork(context)!!)
+                request = if (hasNetwork(ApplicationProvider.getApplicationContext())!!)
                 /*
                 *  If there is Internet, get the cache that was stored 5 seconds ago.
                 *  If the cache is older than 5 minutes, then discard it,
@@ -59,29 +77,30 @@ object AppModule {
                 *  The 'max-stale' attribute is responsible for this behavior.
                 *  The 'only-if-cached' attribute indicates to not retrieve new data; fetch the cache only instead.
                 */
-                    request.newBuilder().header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build()
+                    request.newBuilder().header(
+                        "Cache-Control",
+                        "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7
+                    ).build()
                 // End of if-else statement
 
                 // Add the modified request to the chain.
                 chain.proceed(request)
             }
             .build()
-
-
-        return Retrofit.Builder()
+        api= Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(STAR_WAR_API_URL)
+            .baseUrl(Constants.STAR_WAR_API_URL)
             .client(okHttpClient)
             .build()
             .create(StarWarAPI::class.java)
+        repository= StarWarRepository(api)
+        viewModel=DashboardViewModel(repository)
     }
 
-    @Singleton
-    @Provides
-    fun provideStarWarRepository(
-        api: StarWarAPI
-    ) = StarWarRepository(api) as IStarWarRepository
 
+    @Test
+    fun getEndPoints() {
+        val entryPoints= runBlocking {  repository.getEndPoints()}
+        Truth.assertThat(entryPoints.data?.films).isEqualTo("http://swapi.dev/api/films/")
+    }
 }
-
-
