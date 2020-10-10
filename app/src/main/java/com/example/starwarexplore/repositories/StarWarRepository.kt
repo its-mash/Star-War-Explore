@@ -23,7 +23,7 @@ class StarWarRepository @Inject constructor(private val starWarAPI:StarWarAPI) :
         }
     }
 
-    override suspend fun getFilms(): Resource< List< FilmResponse> > {
+    override suspend fun observeFilms(): Resource< List< FilmResponse> > {
         val endpoints=getEndPoints();
         if(endpoints.status== Status.ERROR)
             return Resource.error(endpoints.message!!,null);
@@ -47,12 +47,30 @@ class StarWarRepository @Inject constructor(private val starWarAPI:StarWarAPI) :
         TODO("Not yet implemented")
     }
 
-    override suspend fun getPeoples(): Resource<PeoplesResponse> {
+    override suspend fun observePeoples(): Resource<List<PeopleResponse>> {
         TODO("Not yet implemented")
     }
 
     override suspend fun getPeople(url: String): Resource<PeopleResponse> {
-        TODO("Not yet implemented")
+        return try {
+            val response = starWarAPI.getCharacter(url)
+            if(response.isSuccessful) {
+                response.body()?.let {
+                    return@let Resource.success(it,null)
+                } ?: Resource.error("An unknown error occured", null)
+            } else {
+                Resource.error("An unknown error occured", null)
+            }
+        } catch(e: Exception) {
+            Resource.error("Couldn't reach the server. Check your internet connection", null)
+        }
+    }
+    override  suspend fun getFilmPeoples(film:FilmResponse):List<Resource<PeopleResponse>>{
+        val characters= mutableListOf<Resource<PeopleResponse>>()
+        for(characterUrl in film.characters){
+           characters.add(getPeople(characterUrl))
+        }
+        return characters;
     }
 
     override fun getMovieImage(episodeNumber: Int): String {

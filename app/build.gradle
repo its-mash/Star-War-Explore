@@ -6,6 +6,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'kotlinx-serialization'
 
 
 android {
@@ -119,4 +120,6 @@ dependencies {
     //permission
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
+    //serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
 }
