@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.starwarexplore.data.remote.responses.CharactersWithImageLinkResponseItem
 import com.example.starwarexplore.data.remote.responses.EndpointResponse
 import com.example.starwarexplore.data.remote.responses.FilmResponse
 import com.example.starwarexplore.data.remote.responses.PeopleResponse
@@ -71,6 +72,16 @@ class DashboardViewModel @ViewModelInject constructor(
     }
     fun getCharacter(url:String):Resource<PeopleResponse>{
        return runBlocking {  repository.getPeople(url) }
+    }
+
+    fun getCharactersWithImage():LiveData< Event<Resource<List<CharactersWithImageLinkResponseItem > > > >{
+        val _chars= MutableLiveData< Event<Resource<List<CharactersWithImageLinkResponseItem>>>>()
+        val chars:LiveData< Event<Resource<List<CharactersWithImageLinkResponseItem>>>> =_chars
+        _chars.value=Event(Resource.loading(null))
+        viewModelScope.launch {
+            _chars.value=Event(repository.getCharactersWithImage())
+        }
+        return chars;
     }
 
 }

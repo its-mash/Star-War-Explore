@@ -1,6 +1,7 @@
 package com.example.starwarexplore.repositories
 
 import android.Manifest
+import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -8,9 +9,14 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.GrantPermissionRule
 import com.example.starwarexplore.StarWarExploreApplication
 import com.example.starwarexplore.data.remote.StarWarAPI
+import com.example.starwarexplore.data.remote.responses.CharactersWithImageLinkResponse
+import com.example.starwarexplore.data.remote.responses.CharactersWithImageLinkResponseItem
 import com.example.starwarexplore.util.Constants
+import com.example.starwarexplore.util.Constants.START_WAR_CHARACTER_IMAGE_API
 import com.example.starwarexplore.util.hasNetwork
 import com.google.common.truth.Truth.assertThat
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import okhttp3.Cache
@@ -21,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Thread.sleep
 
 
 @ExperimentalCoroutinesApi
@@ -35,7 +42,7 @@ class StarWarRepositoryTest{
         GrantPermissionRule.grant(Manifest.permission.INTERNET)
 
     private lateinit var api:StarWarAPI
-
+    private lateinit var repository:StarWarRepository
     @Before
     fun setup() {
         val cacheSize = (5 * 1024 * 1024).toLong()
@@ -91,11 +98,22 @@ class StarWarRepositoryTest{
            .client(okHttpClient)
            .build()
            .create(StarWarAPI::class.java)
+        repository= StarWarRepository(api)
     }
 
     @Test
     fun  entryPointsTest(){
         val entryPoints= runBlocking { api.getEndPoints()}
         assertThat(entryPoints.body()?.films).isEqualTo("http://swapi.dev/api/films/")
+    }
+
+    @Test
+    fun getCharactersWithImage() {
+        val response= runBlocking {  repository.getCharactersWithImage()}
+        sleep(3000)
+        Log.d("IMGG",response.data.toString())
+        Log.d("IMGG",response.message.toString())
+//        assertThat(response.data?.get(0)?.name).isEqualTo("Luke Skywalker")
+//        assertThat(response.data?.get(0)?.image).isEqualTo("https://vignette.wikia.nocookie.net/starwars/images/2/20/LukeTLJ.jpg")
     }
 }

@@ -15,11 +15,11 @@ interface IStarWarRepository {
 
     fun getMovieImage(episodeNumber: Int): String
 
-    fun getCharacterImage(name: String): String
 
     suspend fun observeFilms(): Resource<List<FilmResponse>>
 
     suspend fun observePeoples(): Resource<List<PeopleResponse>>
 
     suspend fun getFilmPeoples(film: FilmResponse): List<Resource<PeopleResponse>>
+    suspend fun getCharactersWithImage(): Resource<List<CharactersWithImageLinkResponseItem>>
 }

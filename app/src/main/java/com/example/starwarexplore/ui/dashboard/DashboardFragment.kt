@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import com.example.starwarexplore.R
 import com.example.starwarexplore.util.Status
-import kotlinx.serialization.json.Json
 
 class DashboardFragment : Fragment() {
 
@@ -24,36 +23,39 @@ class DashboardFragment : Fragment() {
         dashboardViewModel = ViewModelProvider(requireActivity()).get(DashboardViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         val textView: TextView = root.findViewById(R.id.text_dashboard)
-        textView.movementMethod=ScrollingMovementMethod()
+        textView.movementMethod= ScrollingMovementMethod()
 
 //        dashboardViewModel.endpoints.observe(viewLifecycleOwner, Observer {
 //            textView.text = it.getContentIfNotHandled()?.data.toString()
 //        })
         dashboardViewModel.films.observe(viewLifecycleOwner, Observer {
 //            textView.text=it.getContentIfNotHandled()?.toString()
-            val filmRespone=it.getContentIfNotHandled()
+            val filmsRespone=it.getContentIfNotHandled()
 
-            if(filmRespone?.status==Status.SUCCESS) {
-                val film = filmRespone!!.data!!.first()
+            if(filmsRespone?.status==Status.SUCCESS) {
+                val film = filmsRespone!!.data!!.first()
                 textView.text=film.toString()
                 dashboardViewModel.getFilmCharacters(film).observe(viewLifecycleOwner, Observer {
                     val response = it.getContentIfNotHandled()
                     if (response?.status == Status.SUCCESS)
-                        textView.text = response?.data.toString()
+                        textView.text = response?.data?.get(0).toString()
                     else if (response?.status == Status.LOADING)
                         textView.text = "Char " +Status.LOADING.toString()
                     else if (response?.status == Status.ERROR)
                         textView.text = "Char " +response.message
                 })
             }
-            else if(filmRespone?.status==Status.LOADING){
-                textView.text="Film "+filmRespone.status.toString()
+            else if(filmsRespone?.status==Status.LOADING){
+                textView.text="Film "+filmsRespone.status.toString()
             }
-            else if(filmRespone?.status==Status.ERROR)
-                textView.text="Film "+filmRespone.message
+            else if(filmsRespone?.status==Status.ERROR)
+                textView.text="Film "+filmsRespone.message
         })
 //        dashboardViewModel.getEndPoints()
         dashboardViewModel.getFilms()
+//        dashboardViewModel.getCharactersWithImage().observe(viewLifecycleOwner, Observer {
+//            textView.text=it.getContentIfNotHandled().toString()
+//        })
         return root
     }
 }

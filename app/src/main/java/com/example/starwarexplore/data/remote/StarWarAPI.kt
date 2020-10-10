@@ -1,6 +1,7 @@
 package com.example.starwarexplore.data.remote
 
 import com.example.starwarexplore.data.remote.responses.*
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Url
@@ -22,6 +23,5 @@ interface StarWarAPI {
     suspend fun getCharacter(@Url url: String): Response<PeopleResponse>
 
     @GET
-    suspend fun getCharactersWithImageLink(@Url url: String): Response<CharactersWithImageLinkResponse>
-
+    fun getCharactersWithImageLink(@Url url: String): Call<List<CharactersWithImageLinkResponseItem?>?>?
 }

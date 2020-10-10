@@ -122,4 +122,8 @@ dependencies {
 
     //serialization
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0"
+
+    //Picasso
+    def picassoVersion = "2.71828"
+    implementation "com.squareup.picasso:picasso:$picassoVersion"
 }
